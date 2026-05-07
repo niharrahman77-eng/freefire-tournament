@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-ff-dark text-white font-body;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-ff-orange hover:bg-orange-500 text-white font-game font-bold px-6 py-2.5 rounded transition-all duration-200 uppercase tracking-wider text-sm;
+  }
+
+  .btn-secondary {
+    @apply bg-ff-border hover:bg-gray-700 text-white font-game font-semibold px-6 py-2.5 rounded transition-all duration-200 uppercase tracking-wider text-sm border border-gray-600;
+  }
+
+  .btn-danger {
+    @apply bg-red-700 hover:bg-red-600 text-white font-game font-bold px-6 py-2.5 rounded transition-all duration-200 uppercase tracking-wider text-sm;
+  }
+
+  .card {
+    @apply bg-ff-card border border-ff-border rounded-lg p-5;
+  }
+
+  .input-field {
+    @apply w-full bg-ff-dark border border-ff-border rounded px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-ff-orange transition-colors text-sm;
+  }
+
+  .badge-solo {
+    @apply bg-blue-900 text-blue-300 text-xs font-game font-semibold px-2 py-0.5 rounded uppercase;
+  }
+
+  .badge-duo {
+    @apply bg-purple-900 text-purple-300 text-xs font-game font-semibold px-2 py-0.5 rounded uppercase;
+  }
+
+  .badge-squad {
+    @apply bg-green-900 text-green-300 text-xs font-game font-semibold px-2 py-0.5 rounded uppercase;
+  }
+
+  .section-title {
+    @apply font-game font-bold text-2xl text-white uppercase tracking-wider;
+  }
+}
+
+/* scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0A0A0F; }
+::-webkit-scrollbar-thumb { background: #FF6B00; border-radius: 3px; }
