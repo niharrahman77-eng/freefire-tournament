@@ -1,11 +1,8 @@
-// pages/api/verify-payment.js
-// This verifies the payment is real (not fake) before adding coins
-
 import crypto from 'crypto';
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
+import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 
-// Initialize Firebase Admin (server-side Firebase)
+// Initialize Firebase Admin
 if (!getApps().length) {
   initializeApp({
     credential: cert({
@@ -33,7 +30,7 @@ export default async function handler(req, res) {
   } = req.body;
 
   try {
-    // Step 1: Verify the payment signature (proves payment is real)
+    // Step 1: Verify signature
     const body = razorpay_order_id + '|' + razorpay_payment_id;
     const expectedSignature = crypto
       .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
@@ -41,28 +38,25 @@ export default async function handler(req, res) {
       .digest('hex');
 
     if (expectedSignature !== razorpay_signature) {
-      return res.status(400).json({ success: false, error: 'Invalid payment signature' });
+      return res.status(400).json({ success: false, error: 'Invalid signature' });
     }
 
-    // Step 2: Check this payment wasn't already processed (prevent double credit)
+    // Step 2: Check not already processed
     const existing = await adminDb
       .collection('transactions')
       .where('razorpayPaymentId', '==', razorpay_payment_id)
       .get();
 
     if (!existing.empty) {
-      return res.status(200).json({ success: true, message: 'Already processed' });
+      return res.status(200).json({ success: true });
     }
 
-    // Step 3: Add coins to user wallet
-    const userRef = adminDb.collection('users').doc(userId);
-    await userRef.update({
-      balance: adminDb.FieldValue ? 
-        adminDb.FieldValue.increment(amount) : 
-        require('firebase-admin/firestore').FieldValue.increment(amount),
+    // Step 3: Add coins to wallet
+    await adminDb.collection('users').doc(userId).update({
+      balance: FieldValue.increment(amount),
     });
 
-    // Step 4: Record transaction
+    // Step 4: Save transaction
     await adminDb.collection('transactions').add({
       userId,
       username,
@@ -74,9 +68,10 @@ export default async function handler(req, res) {
       createdAt: new Date(),
     });
 
-    res.status(200).json({ success: true });
+    return res.status(200).json({ success: true });
+
   } catch (err) {
-    console.error('Verify payment error:', err);
-    res.status(500).json({ success: false, error: err.message });
+    console.error('Error:', err);
+    return res.status(500).json({ success: false, error: err.message });
   }
 }
