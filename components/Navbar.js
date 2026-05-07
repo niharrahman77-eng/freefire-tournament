@@ -35,6 +35,9 @@ export default function Navbar() {
               <Link href="/wallet" className="text-gray-300 hover:text-ff-orange transition-colors font-game text-sm uppercase tracking-wider">
                 💰 ₹{userData?.balance || 0}
               </Link>
+              <Link href="/deposit" className="btn-primary text-xs py-1.5 px-3">
+                + Add Money
+              </Link>
               <Link href="/dashboard" className="text-gray-300 hover:text-ff-orange transition-colors font-game text-sm uppercase tracking-wider">
                 My Profile
               </Link>
