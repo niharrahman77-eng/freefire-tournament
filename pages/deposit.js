@@ -1,8 +1,6 @@
 // pages/deposit.js
 import { useState, useEffect } from 'react';
 import { useAuth } from '../lib/AuthContext';
-import { db } from '../lib/firebase';
-import { addDoc, collection, serverTimestamp, doc, updateDoc, increment } from 'firebase/firestore';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
 
@@ -18,10 +16,10 @@ export default function Deposit() {
     if (!loading && !user) router.push('/login');
   }, [user, loading]);
 
-  // Load Razorpay script
+  // Load Cashfree SDK
   useEffect(() => {
     const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
     script.async = true;
     document.body.appendChild(script);
     return () => document.body.removeChild(script);
@@ -33,61 +31,59 @@ export default function Deposit() {
 
     setPaying(true);
     try {
-      // Step 1: Create order from our API
+      // Step 1: Create order
       const res = await fetch('/api/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: amt }),
+        body: JSON.stringify({
+          amount: amt,
+          userId: user.uid,
+          username: userData?.username,
+          email: userData?.email,
+        }),
       });
-      const order = await res.json();
-      if (!order.id) throw new Error('Failed to create order');
 
-      // Step 2: Open Razorpay payment popup
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: order.amount,
-        currency: 'INR',
-        name: 'FF Arena',
-        description: `Add ₹${amt} to wallet`,
-        order_id: order.id,
-        prefill: {
-          name: userData?.username || '',
-          email: userData?.email || '',
-        },
-        theme: { color: '#FF6B00' },
-        handler: async function (response) {
-          // Step 3: Verify payment on our server
+      const order = await res.json();
+      if (!order.sessionId) throw new Error(order.error || 'Failed to create order');
+
+      // Step 2: Open Cashfree payment popup
+      const cashfree = window.Cashfree({ mode: 'sandbox' });
+
+      cashfree.checkout({
+        paymentSessionId: order.sessionId,
+        redirectTarget: '_modal',
+      }).then(async (result) => {
+        if (result.error) {
+          toast.error('Payment failed: ' + result.error.message);
+          setPaying(false);
+          return;
+        }
+
+        if (result.paymentDetails) {
+          // Step 3: Verify payment and add coins
           const verifyRes = await fetch('/api/verify-payment', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
+              orderId: order.orderId,
               userId: user.uid,
               amount: amt,
               username: userData?.username,
             }),
           });
-          const result = await verifyRes.json();
-          if (result.success) {
+
+          const verifyData = await verifyRes.json();
+          if (verifyData.success) {
             await refreshUserData();
             toast.success(`₹${amt} added to your wallet!`);
             router.push('/wallet');
           } else {
-            toast.error('Payment verification failed. Contact support.');
-          }
-        },
-        modal: {
-          ondismiss: () => {
-            setPaying(false);
-            toast.error('Payment cancelled');
+            toast.error('Verification failed. Contact support.');
           }
         }
-      };
+        setPaying(false);
+      });
 
-      const rzp = new window.Razorpay(options);
-      rzp.open();
     } catch (err) {
       toast.error('Error: ' + err.message);
       setPaying(false);
@@ -101,16 +97,15 @@ export default function Deposit() {
     <div className="max-w-md mx-auto">
       <h1 className="section-title mb-6">Add Money</h1>
 
-      {/* Current Balance */}
+      {/* Balance */}
       <div className="card text-center mb-6">
         <p className="text-gray-400 text-xs font-game uppercase mb-1">Current Balance</p>
         <p className="font-game font-bold text-4xl text-ff-yellow">₹{userData?.balance || 0}</p>
       </div>
 
-      {/* Quick Amount Buttons */}
+      {/* Quick Amounts */}
       <div className="card mb-4">
         <h2 className="font-game font-bold text-lg mb-4">Choose Amount</h2>
-
         <div className="grid grid-cols-3 gap-3 mb-4">
           {AMOUNTS.map(a => (
             <button key={a} onClick={() => setAmount(String(a))}
@@ -122,7 +117,6 @@ export default function Deposit() {
             </button>
           ))}
         </div>
-
         <div>
           <label className="text-gray-400 text-xs font-game uppercase mb-1 block">Or Enter Custom Amount</label>
           <input
@@ -136,15 +130,15 @@ export default function Deposit() {
         </div>
       </div>
 
-      {/* Payment Methods Info */}
+      {/* Payment Methods */}
       <div className="card mb-4">
         <h2 className="font-game font-semibold text-sm text-gray-400 uppercase mb-3">Accepted Payments</h2>
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          {['📱 UPI (GPay, PhonePe, Paytm)', '💳 Credit / Debit Card', '🏦 Net Banking', '💰 Wallets'].map(m => (
+        <div className="grid grid-cols-2 gap-2">
+          {['📱 UPI (GPay, PhonePe)', '💳 Credit / Debit Card', '🏦 Net Banking', '💰 Wallets'].map(m => (
             <div key={m} className="bg-ff-dark rounded p-2 text-gray-300 text-xs">{m}</div>
           ))}
         </div>
-        <p className="text-gray-600 text-xs mt-3">Powered by Razorpay · 100% Secure</p>
+        <p className="text-gray-600 text-xs mt-3">Powered by Cashfree · 100% Secure</p>
       </div>
 
       {/* Pay Button */}

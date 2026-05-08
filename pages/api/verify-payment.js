@@ -1,8 +1,7 @@
-import crypto from 'crypto';
+// pages/api/verify-payment.js
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 
-// Initialize Firebase Admin
 if (!getApps().length) {
   initializeApp({
     credential: cert({
@@ -20,58 +19,56 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const {
-    razorpay_order_id,
-    razorpay_payment_id,
-    razorpay_signature,
-    userId,
-    amount,
-    username,
-  } = req.body;
+  const { orderId, userId, amount, username } = req.body;
 
   try {
-    // Step 1: Verify signature
-    const body = razorpay_order_id + '|' + razorpay_payment_id;
-    const expectedSignature = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-      .update(body)
-      .digest('hex');
+    // Verify order status with Cashfree
+    const response = await fetch(`https://sandbox.cashfree.com/pg/orders/${orderId}`, {
+      method: 'GET',
+      headers: {
+        'x-client-id': process.env.CASHFREE_APP_ID,
+        'x-client-secret': process.env.CASHFREE_SECRET_KEY,
+        'x-api-version': '2023-08-01',
+      },
+    });
 
-    if (expectedSignature !== razorpay_signature) {
-      return res.status(400).json({ success: false, error: 'Invalid signature' });
+    const data = await response.json();
+
+    // Check payment is actually paid
+    if (data.order_status !== 'PAID') {
+      return res.status(400).json({ success: false, error: 'Payment not completed' });
     }
 
-    // Step 2: Check not already processed
+    // Check not already processed
     const existing = await adminDb
       .collection('transactions')
-      .where('razorpayPaymentId', '==', razorpay_payment_id)
+      .where('cashfreeOrderId', '==', orderId)
       .get();
 
     if (!existing.empty) {
-      return res.status(200).json({ success: true });
+      return res.status(200).json({ success: true, message: 'Already processed' });
     }
 
-    // Step 3: Add coins to wallet
+    // Add coins to wallet
     await adminDb.collection('users').doc(userId).update({
       balance: FieldValue.increment(amount),
     });
 
-    // Step 4: Save transaction
+    // Save transaction
     await adminDb.collection('transactions').add({
       userId,
       username,
       type: 'credit',
       amount,
-      description: `Added ₹${amount} via Razorpay`,
-      razorpayOrderId: razorpay_order_id,
-      razorpayPaymentId: razorpay_payment_id,
+      description: `Added ₹${amount} via Cashfree`,
+      cashfreeOrderId: orderId,
       createdAt: new Date(),
     });
 
     return res.status(200).json({ success: true });
 
   } catch (err) {
-    console.error('Error:', err);
+    console.error('Verify error:', err);
     return res.status(500).json({ success: false, error: err.message });
   }
 }
