@@ -14,11 +14,21 @@ export default function Navbar() {
     router.push('/login');
   }
 
+  // Helper: active link style
+  function navBtn(href) {
+    const isActive = router.pathname === href;
+    return `flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-2 font-game text-xs uppercase tracking-wider transition-all duration-200
+      ${isActive
+        ? 'bg-ff-orange border-orange-400 text-white shadow-[0_0_10px_rgba(255,107,0,0.5)]'
+        : 'bg-ff-dark border-gray-600 text-gray-300 hover:border-ff-orange hover:text-ff-orange'}`;
+  }
+
   return (
     <nav className="bg-ff-card border-b border-ff-border sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2 shrink-0">
           <span className="text-ff-orange text-2xl">🔥</span>
           <span className="font-game font-bold text-xl text-white tracking-wider">
             FF <span className="text-ff-orange">ARENA</span>
@@ -26,69 +36,109 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-6">
-          <Link href="/" className="text-gray-300 hover:text-ff-orange transition-colors font-game text-sm uppercase tracking-wider">
-            Tournaments
+        <div className="hidden md:flex items-center gap-2">
+          <Link href="/" className={navBtn('/')}>
+            🏆 Tournaments
           </Link>
+
           {user && (
             <>
-              <Link href="/wallet" className="text-gray-300 hover:text-ff-orange transition-colors font-game text-sm uppercase tracking-wider">
+              <Link href="/wallet" className={navBtn('/wallet')}>
                 💰 ₹{userData?.balance || 0}
               </Link>
-              <Link href="/deposit" className="btn-primary text-xs py-1.5 px-3">
-                + Add Money
+
+              <Link href="/deposit" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-2 font-game text-xs uppercase tracking-wider transition-all duration-200 bg-ff-orange border-orange-400 text-white shadow-[0_0_10px_rgba(255,107,0,0.4)] hover:bg-orange-500 hover:shadow-[0_0_16px_rgba(255,107,0,0.7)]">
+                ➕ Add Money
               </Link>
-              <Link href="/dashboard" className="text-gray-300 hover:text-ff-orange transition-colors font-game text-sm uppercase tracking-wider">
-                My Profile
+
+              <Link href="/dashboard" className={navBtn('/dashboard')}>
+                👤 My Profile
               </Link>
+
               {userData?.isAdmin && (
-                <Link href="/admin" className="text-ff-yellow hover:text-yellow-400 transition-colors font-game text-sm uppercase tracking-wider">
+                <Link href="/admin" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-2 font-game text-xs uppercase tracking-wider transition-all duration-200 bg-yellow-900/40 border-yellow-500 text-yellow-400 hover:bg-yellow-800/60 hover:shadow-[0_0_10px_rgba(234,179,8,0.4)]">
                   ⚡ Admin
                 </Link>
               )}
-              <button onClick={handleLogout} className="btn-secondary text-xs py-2 px-4">
-                Logout
+
+              <button onClick={handleLogout}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-2 font-game text-xs uppercase tracking-wider transition-all duration-200 bg-ff-dark border-red-700 text-red-400 hover:bg-red-900/30 hover:border-red-500">
+                🚪 Logout
               </button>
             </>
           )}
+
           {!user && (
             <>
-              <Link href="/login" className="btn-secondary text-xs py-2 px-4">Login</Link>
-              <Link href="/register" className="btn-primary text-xs py-2 px-4">Register</Link>
+              <Link href="/login" className={navBtn('/login')}>
+                🔑 Login
+              </Link>
+              <Link href="/register" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-2 font-game text-xs uppercase tracking-wider transition-all duration-200 bg-ff-orange border-orange-400 text-white shadow-[0_0_10px_rgba(255,107,0,0.4)] hover:bg-orange-500">
+                ✨ Register
+              </Link>
             </>
           )}
         </div>
 
         {/* Mobile Menu Button */}
-        <button className="md:hidden text-white text-2xl" onClick={() => setMenuOpen(!menuOpen)}>
+        <button
+          className="md:hidden w-9 h-9 flex items-center justify-center rounded-lg border-2 border-gray-600 text-white hover:border-ff-orange transition-all"
+          onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? '✕' : '☰'}
         </button>
       </div>
 
       {/* Mobile Menu */}
       {menuOpen && (
-        <div className="md:hidden bg-ff-card border-t border-ff-border px-4 pb-4 flex flex-col gap-3">
-          <Link href="/" className="text-gray-300 font-game text-sm uppercase pt-3" onClick={() => setMenuOpen(false)}>Tournaments</Link>
+        <div className="md:hidden bg-ff-card border-t border-ff-border px-4 py-4 flex flex-col gap-2">
+
+          <Link href="/" onClick={() => setMenuOpen(false)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-lg border-2 border-gray-600 text-gray-300 font-game text-sm uppercase hover:border-ff-orange hover:text-ff-orange transition-all">
+            🏆 Tournaments
+          </Link>
+
           {user && (
             <>
-              <Link href="/wallet" className="text-gray-300 font-game text-sm uppercase" onClick={() => setMenuOpen(false)}>
-                💰 Wallet: ₹{userData?.balance || 0}
+              <Link href="/wallet" onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg border-2 border-gray-600 text-gray-300 font-game text-sm uppercase hover:border-ff-orange hover:text-ff-orange transition-all">
+                💰 Wallet — ₹{userData?.balance || 0}
               </Link>
-              <Link href="/deposit" className="btn-primary text-sm text-center" onClick={() => setMenuOpen(false)}>
-                + Add Money
+
+              <Link href="/deposit" onClick={() => setMenuOpen(false)}
+                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border-2 border-orange-400 bg-ff-orange text-white font-game text-sm uppercase shadow-[0_0_10px_rgba(255,107,0,0.4)] hover:bg-orange-500 transition-all">
+                ➕ Add Money
               </Link>
-              <Link href="/dashboard" className="text-gray-300 font-game text-sm uppercase" onClick={() => setMenuOpen(false)}>My Profile</Link>
+
+              <Link href="/dashboard" onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg border-2 border-gray-600 text-gray-300 font-game text-sm uppercase hover:border-ff-orange hover:text-ff-orange transition-all">
+                👤 My Profile
+              </Link>
+
               {userData?.isAdmin && (
-                <Link href="/admin" className="text-ff-yellow font-game text-sm uppercase" onClick={() => setMenuOpen(false)}>⚡ Admin</Link>
+                <Link href="/admin" onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg border-2 border-yellow-500 text-yellow-400 font-game text-sm uppercase bg-yellow-900/20 hover:bg-yellow-800/40 transition-all">
+                  ⚡ Admin Panel
+                </Link>
               )}
-              <button onClick={handleLogout} className="btn-secondary text-left text-xs">Logout</button>
+
+              <button onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg border-2 border-red-700 text-red-400 font-game text-sm uppercase bg-ff-dark hover:bg-red-900/20 transition-all">
+                🚪 Logout
+              </button>
             </>
           )}
+
           {!user && (
-            <div className="flex gap-3">
-              <Link href="/login" className="btn-secondary text-xs" onClick={() => setMenuOpen(false)}>Login</Link>
-              <Link href="/register" className="btn-primary text-xs" onClick={() => setMenuOpen(false)}>Register</Link>
-            </div>
+            <>
+              <Link href="/login" onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg border-2 border-gray-600 text-gray-300 font-game text-sm uppercase hover:border-ff-orange hover:text-ff-orange transition-all">
+                🔑 Login
+              </Link>
+              <Link href="/register" onClick={() => setMenuOpen(false)}
+                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border-2 border-orange-400 bg-ff-orange text-white font-game text-sm uppercase hover:bg-orange-500 transition-all">
+                ✨ Register
+              </Link>
+            </>
           )}
         </div>
       )}
