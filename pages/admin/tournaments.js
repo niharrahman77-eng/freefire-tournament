@@ -193,6 +193,8 @@ export default function AdminTournaments() {
                 {t.roomId && <p className="text-green-400 text-xs mt-0.5">Room: {t.roomId}</p>}
               </div>
               <div className="flex gap-2 flex-wrap">
+                <Link href={`/admin/edit-tournament/${t.id}`}
+                  className="btn-secondary text-xs py-1.5">✏️ Edit</Link>
                 <button onClick={() => { setSelectedTourny(t); setRoomId(t.roomId || ''); setRoomPassword(t.roomPassword || ''); setModal('room'); }}
                   className="btn-secondary text-xs py-1.5">🏠 Room</button>
                 <button onClick={() => openResultsModal(t)}
