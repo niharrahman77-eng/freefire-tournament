@@ -113,6 +113,9 @@ export default function Dashboard() {
                 </div>
               ))}
             </div>
+            <Link href="/edit-profile" className="btn-secondary w-full text-center mt-4 block">
+              ✏️ Edit Profile
+            </Link>
           </div>
 
           {/* Wallet Card */}
