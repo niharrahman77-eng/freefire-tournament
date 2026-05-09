@@ -17,6 +17,8 @@ export default function Dashboard() {
     if (!loading && !user) router.push('/login');
   }, [user, loading]);
 
+  const [totalWon, setTotalWon] = useState(0);
+
   useEffect(() => {
     if (!user) return;
     async function fetchData() {
@@ -24,7 +26,21 @@ export default function Dashboard() {
       try {
         const txQ = query(collection(db, 'transactions'), where('userId', '==', user.uid), orderBy('createdAt', 'desc'));
         const txSnap = await getDocs(txQ);
-        setTransactions(txSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+        const txList = txSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        setTransactions(txList);
+
+        // Total won = only tournament reward credits (not deposits)
+        const won = txList
+          .filter(t =>
+            t.type === 'credit' &&
+            t.description &&
+            !t.description.toLowerCase().includes('razorpay') &&
+            !t.description.toLowerCase().includes('cashfree') &&
+            !t.description.toLowerCase().includes('added ₹') &&
+            !t.description.toLowerCase().includes('admin added')
+          )
+          .reduce((sum, t) => sum + (t.amount || 0), 0);
+        setTotalWon(won);
       } catch {}
 
       // Fetch joined tournaments with tournament details
@@ -33,13 +49,10 @@ export default function Dashboard() {
         const jpSnap = await getDocs(jpQ);
         const joined = jpSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-        // Fetch tournament details for each joined tournament
         const withDetails = await Promise.all(joined.map(async (jp) => {
           try {
             const tSnap = await getDoc(doc(db, 'tournaments', jp.tournamentId));
-            if (tSnap.exists()) {
-              return { ...jp, tournament: tSnap.data() };
-            }
+            if (tSnap.exists()) return { ...jp, tournament: tSnap.data() };
           } catch {}
           return jp;
         }));
@@ -74,9 +87,7 @@ export default function Dashboard() {
           <p className="text-gray-500 text-xs mt-1">Matches</p>
         </div>
         <div className="card text-center">
-          <p className="font-game font-bold text-2xl text-green-400">
-            {transactions.filter(t => t.type === 'credit').reduce((sum, t) => sum + (t.amount || 0), 0)}
-          </p>
+          <p className="font-game font-bold text-2xl text-green-400">₹{totalWon}</p>
           <p className="text-gray-500 text-xs mt-1">Total Won</p>
         </div>
       </div>
