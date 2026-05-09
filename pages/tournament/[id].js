@@ -163,6 +163,12 @@ export default function TournamentDetail() {
         )}
 
         {/* CTA */}
+        {tournament.status === 'Completed' && (
+          <Link href={`/tournament/results/${id}`}
+            className="btn-primary w-full text-center block mb-3">
+            🏆 View Results
+          </Link>
+        )}
         {tournament.status === 'Open' && !hasJoined && (
           <button onClick={() => setShowJoinModal(true)} className="btn-primary w-full">
             Join Tournament — ₹{tournament.entryFee} Entry

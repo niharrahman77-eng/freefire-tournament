@@ -82,6 +82,12 @@ export default function AdminTournaments() {
         if (usersSnap.empty) { toast.error(`No user found with UID: ${entry.ffUid}`); continue; }
         const userDoc = usersSnap.docs[0];
 
+        // Find ingame name from joined players
+        const jpSnap = await getDocs(query(collection(db, 'joinedPlayers'),
+          where('tournamentId', '==', selectedTourny.id),
+          where('ffUid', '==', entry.ffUid)));
+        const ingameName = jpSnap.empty ? entry.ffUid : jpSnap.docs[0].data().ingameName;
+
         // Add reward to wallet
         await updateDoc(doc(db, 'users', userDoc.id), { balance: increment(reward) });
         await addDoc(collection(db, 'transactions'), {
@@ -89,6 +95,17 @@ export default function AdminTournaments() {
           type: 'credit',
           amount: reward,
           description: `${kills} kills × ₹${selectedTourny.perKillReward} = ₹${reward} (${selectedTourny.name})`,
+          createdAt: serverTimestamp(),
+        });
+
+        // Save to results so players can see
+        await addDoc(collection(db, 'results'), {
+          tournamentId: selectedTourny.id,
+          tournamentName: selectedTourny.name,
+          ffUid: entry.ffUid,
+          ingameName,
+          kills,
+          reward,
           createdAt: serverTimestamp(),
         });
       }
@@ -112,12 +129,29 @@ export default function AdminTournaments() {
         if (usersSnap.empty) { toast.error(`No user found with UID: ${entry.ffUid}`); continue; }
         const userDoc = usersSnap.docs[0];
 
+        // Find ingame name
+        const jpSnap = await getDocs(query(collection(db, 'joinedPlayers'),
+          where('tournamentId', '==', selectedTourny.id),
+          where('ffUid', '==', entry.ffUid)));
+        const ingameName = jpSnap.empty ? entry.ffUid : jpSnap.docs[0].data().ingameName;
+
         await updateDoc(doc(db, 'users', userDoc.id), { balance: increment(reward) });
         await addDoc(collection(db, 'transactions'), {
           userId: userDoc.id,
           type: 'credit',
           amount: reward,
           description: `Position #${entry.position} reward ₹${reward} (${selectedTourny.name})`,
+          createdAt: serverTimestamp(),
+        });
+
+        // Save to results so players can see
+        await addDoc(collection(db, 'results'), {
+          tournamentId: selectedTourny.id,
+          tournamentName: selectedTourny.name,
+          ffUid: entry.ffUid,
+          ingameName,
+          position: entry.position,
+          reward,
           createdAt: serverTimestamp(),
         });
       }
