@@ -74,6 +74,9 @@ export default function Navbar() {
               <Link href="/wallet" className="text-gray-300 font-game text-sm uppercase" onClick={() => setMenuOpen(false)}>
                 💰 Wallet: ₹{userData?.balance || 0}
               </Link>
+              <Link href="/deposit" className="btn-primary text-sm text-center" onClick={() => setMenuOpen(false)}>
+                + Add Money
+              </Link>
               <Link href="/dashboard" className="text-gray-300 font-game text-sm uppercase" onClick={() => setMenuOpen(false)}>My Profile</Link>
               {userData?.isAdmin && (
                 <Link href="/admin" className="text-ff-yellow font-game text-sm uppercase" onClick={() => setMenuOpen(false)}>⚡ Admin</Link>
