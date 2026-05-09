@@ -196,9 +196,28 @@ export default function Dashboard() {
 
                   {/* Player Details */}
                   <div className="bg-ff-dark rounded p-3 mb-3">
-                    <p className="text-gray-500 text-xs mb-1">Your Details</p>
-                    <p className="text-white text-sm">IGN: <span className="font-bold text-ff-orange">{jp.ingameName}</span></p>
-                    <p className="text-white text-sm">FF UID: <span className="font-bold">{jp.ffUid}</span></p>
+                    {jp.type === 'Solo' || !jp.type ? (
+                      <>
+                        <p className="text-gray-500 text-xs mb-1">Your Details</p>
+                        <p className="text-white text-sm">IGN: <span className="font-bold text-ff-orange">{jp.ingameName}</span></p>
+                        <p className="text-white text-sm">FF UID: <span className="font-bold">{jp.ffUid}</span></p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-gray-500 text-xs mb-2">
+                          Team: <span className="text-ff-orange font-bold">{jp.teamName}</span>
+                        </p>
+                        {jp.members?.map((m, i) => (
+                          <div key={i} className="flex justify-between items-center py-1 border-b border-ff-border last:border-0">
+                            <div>
+                              <p className="text-white text-xs font-bold">{m.ingameName} {i === 0 && <span className="text-ff-yellow text-xs">👑</span>}</p>
+                              <p className="text-gray-500 text-xs">UID: {m.ffUid}</p>
+                            </div>
+                            <span className="text-gray-600 text-xs">P{i + 1}</span>
+                          </div>
+                        ))}
+                      </>
+                    )}
                   </div>
 
                   {/* Room Details if available */}

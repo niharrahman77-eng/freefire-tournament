@@ -237,10 +237,27 @@ export default function AdminTournaments() {
             {/* Joined Players Reference */}
             {players.length > 0 && (
               <div className="bg-ff-dark rounded p-3 mb-4">
-                <p className="text-gray-400 text-xs font-game uppercase mb-2">Joined Players</p>
-                <div className="max-h-32 overflow-y-auto flex flex-col gap-1">
+                <p className="text-gray-400 text-xs font-game uppercase mb-2">
+                  Joined {selectedTourny?.type !== 'Solo' ? 'Teams' : 'Players'}
+                </p>
+                <div className="max-h-40 overflow-y-auto flex flex-col gap-2">
                   {players.map(p => (
-                    <p key={p.id} className="text-xs text-gray-300">{p.ingameName} — UID: <span className="text-ff-yellow">{p.ffUid}</span></p>
+                    <div key={p.id} className="border-b border-ff-border pb-2 last:border-0">
+                      {p.teamName ? (
+                        <>
+                          <p className="text-ff-orange text-xs font-bold">Team: {p.teamName}</p>
+                          {p.members?.map((m, i) => (
+                            <p key={i} className="text-gray-300 text-xs">
+                              P{i + 1}: {m.ingameName} — <span className="text-ff-yellow">{m.ffUid}</span>
+                            </p>
+                          ))}
+                        </>
+                      ) : (
+                        <p className="text-gray-300 text-xs">
+                          {p.ingameName} — UID: <span className="text-ff-yellow">{p.ffUid}</span>
+                        </p>
+                      )}
+                    </div>
                   ))}
                 </div>
               </div>
