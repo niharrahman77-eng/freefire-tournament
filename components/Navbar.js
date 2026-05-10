@@ -31,7 +31,7 @@ export default function Navbar() {
         <Link href="/" className="flex items-center gap-2 shrink-0">
           <span className="text-ff-orange text-2xl">🔥</span>
           <span className="font-game font-bold text-xl text-white tracking-wider">
-            FF <span className="text-ff-orange">ARENA</span>
+            Clash<span className="text-ff-orange">Sphere</span>
           </span>
         </Link>
 
