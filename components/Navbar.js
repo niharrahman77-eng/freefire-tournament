@@ -31,12 +31,16 @@ export default function Navbar() {
         <Link href="/" className="flex items-center gap-2 shrink-0">
           <span className="text-ff-orange text-2xl">🔥</span>
           <span className="font-game font-bold text-xl text-white tracking-wider">
-            Clash<span className="text-ff-orange">Sphere</span>
+            FF <span className="text-ff-orange">ARENA</span>
           </span>
         </Link>
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-2">
+          <Link href="/download" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-2 font-game text-xs uppercase tracking-wider transition-all duration-200 bg-ff-dark border-green-600 text-green-400 hover:bg-green-900/30 hover:border-green-400">
+            📱 Download App
+          </Link>
+
           <Link href="/" className={navBtn('/')}>
             🏆 Tournaments
           </Link>
@@ -91,6 +95,12 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {menuOpen && (
         <div className="md:hidden bg-ff-card border-t border-ff-border px-4 py-4 flex flex-col gap-2">
+
+          <a href="/ClashSphere.apk" download="ClashSphere.apk"
+            onClick={() => setMenuOpen(false)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-lg border-2 border-green-600 text-green-400 font-game text-sm uppercase hover:bg-green-900/20 transition-all">
+            ⬇️ Download App (APK)
+          </a>
 
           <Link href="/" onClick={() => setMenuOpen(false)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-lg border-2 border-gray-600 text-gray-300 font-game text-sm uppercase hover:border-ff-orange hover:text-ff-orange transition-all">
