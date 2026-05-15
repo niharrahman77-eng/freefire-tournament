@@ -17,7 +17,7 @@ export default function CreateTournament() {
     name: '', type: 'Solo', entryFee: '', prizePool: '',
     maxPlayers: '', date: '', description: '', status: 'Open',
     rewardType: 'perKill', perKillReward: '',
-    pos1: '', pos2: '', pos3: '',
+    pos1: '', pos2: '', pos3: '', mode: 'Battle Royale',
   });
 
   useEffect(() => {
@@ -38,6 +38,7 @@ export default function CreateTournament() {
       const data = {
         name: form.name,
         type: form.type,
+        mode: form.mode,
         entryFee: parseInt(form.entryFee),
         prizePool: parseInt(form.prizePool),
         maxPlayers: parseInt(form.maxPlayers),
@@ -84,6 +85,17 @@ export default function CreateTournament() {
 
         <div className="grid grid-cols-2 gap-3">
           <div>
+            <label className="text-gray-400 text-xs font-game uppercase mb-1 block">Game Mode</label>
+            <select name="mode" value={form.mode} onChange={handleChange} className="input-field">
+              <option>Battle Royale</option>
+              <option>Lone Wolf</option>
+              <option>Clash Squad</option>
+              <option>Sniper War</option>
+              <option>Knife Party</option>
+              <option>Rush War</option>
+            </select>
+          </div>
+          <div>
             <label className="text-gray-400 text-xs font-game uppercase mb-1 block">Type</label>
             <select name="type" value={form.type} onChange={handleChange} className="input-field">
               <option>Solo</option>
@@ -91,6 +103,7 @@ export default function CreateTournament() {
               <option>Squad</option>
             </select>
           </div>
+        </div>
           <div>
             <label className="text-gray-400 text-xs font-game uppercase mb-1 block">Status</label>
             <select name="status" value={form.status} onChange={handleChange} className="input-field">

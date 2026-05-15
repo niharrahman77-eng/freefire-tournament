@@ -1,9 +1,18 @@
 // components/TournamentCard.js
 import Link from 'next/link';
 
+const MODE_ICONS = {
+  'Battle Royale': '🏝️',
+  'Lone Wolf': '💀',
+  'Clash Squad': '👥',
+  'Sniper War': '🎯',
+  'Knife Party': '🔪',
+  'Rush War': '💣',
+};
+
 export default function TournamentCard({ tournament }) {
   const { id, name, type, entryFee, prizePool, rewardType, perKillReward,
-    positionRewards, maxPlayers, joinedCount, status, date } = tournament;
+    positionRewards, maxPlayers, joinedCount, status, date, mode } = tournament;
 
   const typeClass = type === 'Solo' ? 'badge-solo' : type === 'Duo' ? 'badge-duo' : 'badge-squad';
 
@@ -16,9 +25,16 @@ export default function TournamentCard({ tournament }) {
     <div className="card hover:border-ff-orange transition-all duration-300 hover:-translate-y-0.5 flex flex-col gap-3">
       {/* Header */}
       <div className="flex justify-between items-start">
-        <div>
+        <div className="flex-1">
+          {/* Mode Badge */}
+          {mode && (
+            <div className="flex items-center gap-1 mb-1">
+              <span className="text-sm">{MODE_ICONS[mode] || '🎮'}</span>
+              <span className="text-ff-orange font-game text-xs uppercase font-bold">{mode}</span>
+            </div>
+          )}
           <h3 className="font-game font-bold text-lg text-white">{name}</h3>
-          <p className="text-gray-400 text-xs mt-0.5">{date || 'Date TBD'}</p>
+          <p className="text-gray-400 text-xs mt-0.5">{date ? new Date(date).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : 'Date TBD'}</p>
         </div>
         <div className="flex flex-col items-end gap-1">
           <span className={typeClass}>{type}</span>
