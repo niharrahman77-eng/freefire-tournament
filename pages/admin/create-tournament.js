@@ -104,6 +104,7 @@ export default function CreateTournament() {
             </select>
           </div>
         </div>
+        <div className="grid grid-cols-3 gap-3">
           <div>
             <label className="text-gray-400 text-xs font-game uppercase mb-1 block">Status</label>
             <select name="status" value={form.status} onChange={handleChange} className="input-field">
@@ -112,9 +113,6 @@ export default function CreateTournament() {
               <option>Completed</option>
             </select>
           </div>
-        </div>
-
-        <div className="grid grid-cols-3 gap-3">
           <div>
             <label className="text-gray-400 text-xs font-game uppercase mb-1 block">Entry Fee (₹) *</label>
             <input name="entryFee" type="number" value={form.entryFee} onChange={handleChange} className="input-field" placeholder="20" />
