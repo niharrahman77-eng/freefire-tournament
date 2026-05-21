@@ -39,6 +39,7 @@ export default function AdminDashboard() {
     { href: '/admin/tournaments', icon: '📋', label: 'Manage Tournaments', desc: 'Edit, add room ID, results' },
     { href: '/admin/users', icon: '👥', label: 'Manage Users', desc: 'View and add coins to users' },
     { href: '/admin/withdrawals', icon: '💸', label: 'Withdrawals', desc: 'Approve or reject requests', badge: stats.pendingWithdrawals },
+    { href: '/admin/banners', icon: '🖼️', label: 'Manage Banners', desc: 'Add banners to homepage' },
   ];
 
   return (

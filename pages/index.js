@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { db } from '../lib/firebase';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import TournamentCard from '../components/TournamentCard';
+import Banner from '../components/Banner';
 
 const MODES = [
   { id: 'All', label: 'All', icon: '🏆' },
@@ -76,6 +77,9 @@ export default function Home() {
         </h1>
         <p className="text-gray-400 font-body text-sm">Join tournaments · Win real money · Become a legend</p>
       </div>
+
+      {/* Banner Slideshow */}
+      <Banner />
 
       {/* Mode Cards */}
       <div className="mb-6">
